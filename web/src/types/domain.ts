@@ -72,3 +72,23 @@ export type Paginated<T> = {
   page: number;
   page_size: number;
 };
+
+// Blog content blocks
+export type BlogBlock =
+  | { type: 'h1'; text: string }
+  | { type: 'h2'; text: string }
+  | { type: 'h3'; text: string }
+  | { type: 'p';  text: string }
+  | { type: 'quote'; text: string }
+  | { type: 'ul'; items: string[] }
+  | { type: 'ol'; items: string[] }
+  | { type: 'code'; language?: string; code: string }
+  | { type: 'image'; url: string; alt?: string; caption?: string };
+
+export type BlogPost = {
+  slug: string;
+  title: string;
+  content_json: BlogBlock[];
+  tags?: string[];
+  created_at?: string;
+};

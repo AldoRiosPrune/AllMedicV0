@@ -15,11 +15,11 @@ export default function DoctorsClient() {
   const { data, isLoading, error } = useDoctors(specialty || null);
 
   const items = useMemo(() => {
-    const arr = ((data ?⭐ []) as DoctorWithRating[]).slice();
-    const getRating = (d: DoctorWithRating) => Number(d.rating_avg ?⭐ 0);
+    const arr = ((data ?? []) as DoctorWithRating[]).slice();
+    const getRating = (d: DoctorWithRating) => Number(d.rating_avg ?? 0);
     arr.sort((a, b) =>
       sort === "rating_desc"
-        ⭐ getRating(b) - getRating(a)
+        ? getRating(b) - getRating(a)
         : getRating(a) - getRating(b)
     );
     return arr;
@@ -60,13 +60,13 @@ export default function DoctorsClient() {
       {!isLoading && !error && items.length > 0 && (
         <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {items.map((d) => {
-            const rating = Number((d as DoctorWithRating).rating_avg ?⭐ 0);
+            const rating = Number((d as DoctorWithRating).rating_avg ?? 0);
             return (
               <li key={d.id} className="border rounded-lg p-4">
                 <div className="font-semibold">
-                  {d.full_name ?⭐ "Médico(a) sin nombre"}
+                  {d.full_name ?? "Médico(a) sin nombre"}
                 </div>
-                <div className="text-sm text-gray-600">{d.specialty ?⭐ "Sin especialidad"}</div>
+                <div className="text-sm text-gray-600">{d.specialty ?? "Sin especialidad"}</div>
                 <div className="text-sm mt-1">⭐ {rating.toFixed(1)}</div>
                 <div className="mt-3">
                   <Link className="inline-block rounded border px-3 py-1" href={`/doctors/${d.id}`}>
