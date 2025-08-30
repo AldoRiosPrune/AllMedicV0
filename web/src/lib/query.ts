@@ -3,47 +3,25 @@ import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
 
 export function serverClient() {
-  // In Next 15 types, cookies() may be typed as Promise. We cast to a minimal interface.
-  type CookieInit = {
-    name: string
-    value: string
-    expires?: Date
-    path?: string
-    sameSite?: 'lax' | 'strict' | 'none'
-    httpOnly?: boolean
-    secure?: boolean
-    maxAge?: number
-    domain?: string
+  const cookieStore = cookies() as unknown as {
+    getAll: (name?: string) => Array<{ name: string; value: string }>
+    set?: (init: { name: string; value: string; expires?: Date }) => void
   }
-  interface CookieStoreLike {
-    get: (name: string) => { name: string; value: string } | undefined
-    set: (init: CookieInit) => void
-  }
-
-  const cookieStore = (cookies() as unknown) as CookieStoreLike
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
+        getAll: () => {
           try {
-            return cookieStore.get(name)?.value
+            const all = cookieStore.getAll()
+            return all?.map((c) => ({ name: c.name, value: c.value })) ?? []
           } catch {
-            return undefined
+            return []
           }
         },
-        set(name: string, value: string, options: Partial<Omit<CookieInit, 'name' | 'value'>>) {
-          try {
-            cookieStore.set({ name, value, ...(options ?? {}) })
-          } catch {}
-        },
-        remove(name: string, options: Partial<Omit<CookieInit, 'value'>>) {
-          try {
-            cookieStore.set({ name, value: '', ...(options ?? {}), expires: new Date(0) })
-          } catch {}
-        },
+        // setAll is optional for pages/components; Supabase will warn only if needed.
       },
     },
   )
