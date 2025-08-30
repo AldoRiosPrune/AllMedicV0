@@ -6,6 +6,7 @@ export const revalidate = 0;
 import { useEffect, useMemo, useState } from "react";
 import Protected from "@/components/Protected";
 import { getSupabaseBrowserClient } from "@/lib/supabaseClient";
+import Link from "next/link";
 
 type Profile = { full_name: string | null };
 type DoctorRow = {
@@ -37,25 +38,24 @@ export default function DoctorsPage() {
     (async () => {
       setLoading(true);
 
-      // Tipamos la respuesta como DoctorRow[]
-      let q = supabase
+      let query = supabase
         .from("doctors")
         .select(
           "id, specialty, years_experience, rating_avg, rating_count, profiles:profiles!inner(full_name)"
         )
-        .limit(50) as unknown as Promise<{ data: DoctorRow[] | null; error: any }>; // el cast solo es del tipo de promesa
+        .limit(50);
 
-      
-      if (specialty) q = (q as any).ilike("specialty", `%${specialty}%`);
+      if (specialty) {
+        query = query.ilike("specialty", `%${specialty}%`);
+      }
 
-      // Ejecuta la consulta
-      // @ts-ignore – por el cast de arriba
-      const { data, error } = await q;
-      if (error || !data) {
+      const { data, error } = await query;
+      if (error) {
         console.error(error);
         setItems([]);
       } else {
-        const mapped: Doctor[] = data.map((d) => ({
+        const rows = (data ?? []) as unknown as DoctorRow[];
+        const mapped: Doctor[] = rows.map((d) => ({
           id: d.id,
           full_name: d.profiles?.full_name ?? null,
           specialty: d.specialty,
@@ -96,7 +96,9 @@ export default function DoctorsPage() {
           <select
             className="border rounded px-2 py-1"
             value={order}
-            onChange={(e) => setOrder(e.target.value as "rating" | "experience")}
+            onChange={(e) =>
+              setOrder(e.target.value as "rating" | "experience")
+            }
           >
             <option value="rating">Mejor calificados</option>
             <option value="experience">Más experiencia</option>
@@ -112,15 +114,22 @@ export default function DoctorsPage() {
         <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {sorted.map((d) => (
             <li key={d.id} className="border rounded-lg p-4">
-              <div className="font-semibold">{d.full_name ?? "Médico(a) sin nombre"}</div>
+              <div className="font-semibold">
+                {d.full_name ?? "Médico(a) sin nombre"}
+              </div>
               <div className="text-sm text-gray-600">{d.specialty}</div>
               <div className="text-sm mt-1">
                 ⭐ {d.rating_avg.toFixed(1)} ({d.rating_count})
               </div>
-              <div className="text-sm">Experiencia: {d.years_experience ?? 0} años</div>
-              <a className="inline-block mt-3 text-blue-600 underline" href={`/doctors/${d.id}`}>
+              <div className="text-sm">
+                Experiencia: {d.years_experience ?? 0} años
+              </div>
+              <Link
+                href={`/doctors/${d.id}`}
+                className="inline-block mt-3 text-blue-600 underline"
+              >
                 Ver perfil
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
