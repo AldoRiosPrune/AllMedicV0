@@ -3,27 +3,45 @@ import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
 
 export function serverClient() {
-  const cookieStore = cookies()
-  // Uses public anon key on server; RLS still applies.
+  // In Next 15 types, cookies() may be typed as Promise. We cast to a minimal interface.
+  type CookieInit = {
+    name: string
+    value: string
+    expires?: Date
+    path?: string
+    sameSite?: 'lax' | 'strict' | 'none'
+    httpOnly?: boolean
+    secure?: boolean
+    maxAge?: number
+    domain?: string
+  }
+  interface CookieStoreLike {
+    get: (name: string) => { name: string; value: string } | undefined
+    set: (init: CookieInit) => void
+  }
+
+  const cookieStore = (cookies() as unknown) as CookieStoreLike
+
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-        set(name: string, value: string, options: Record<string, unknown>) {
           try {
-            // @ts-expect-error - set allows object in App Router
-            cookieStore.set({ name, value, ...options })
+            return cookieStore.get(name)?.value
+          } catch {
+            return undefined
+          }
+        },
+        set(name: string, value: string, options: Partial<Omit<CookieInit, 'name' | 'value'>>) {
+          try {
+            cookieStore.set({ name, value, ...(options ?? {}) })
           } catch {}
         },
-        remove(name: string, options: Record<string, unknown>) {
+        remove(name: string, options: Partial<Omit<CookieInit, 'value'>>) {
           try {
-            // Expire cookie
-            // @ts-expect-error - set allows object in App Router
-            cookieStore.set({ name, value: '', ...options, expires: new Date(0) })
+            cookieStore.set({ name, value: '', ...(options ?? {}), expires: new Date(0) })
           } catch {}
         },
       },
