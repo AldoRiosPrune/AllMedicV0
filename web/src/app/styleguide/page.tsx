@@ -105,9 +105,9 @@ export default function Page() {
               Normal
             </label>
             <select id="sel-normal" className="select" aria-label="Select normal">
-              <option>Opción A</option>
-              <option>Opción B</option>
-              <option>Opción C</option>
+              <option>Opcin A</option>
+              <option>Opcin B</option>
+              <option>Opcin C</option>
             </select>
           </div>
 
@@ -116,9 +116,9 @@ export default function Page() {
               Hover
             </label>
             <select id="sel-hover" className="select is-hover" aria-label="Select hover">
-              <option>Opción A</option>
-              <option>Opción B</option>
-              <option>Opción C</option>
+              <option>Opcin A</option>
+              <option>Opcin B</option>
+              <option>Opcin C</option>
             </select>
           </div>
 
@@ -127,8 +127,8 @@ export default function Page() {
               Disabled
             </label>
             <select id="sel-disabled" className="select" disabled aria-disabled="true">
-              <option>Opción A</option>
-              <option>Opción B</option>
+              <option>Opcin A</option>
+              <option>Opcin B</option>
             </select>
           </div>
 
@@ -137,11 +137,11 @@ export default function Page() {
               Error
             </label>
             <select id="sel-error" className="select error" aria-invalid="true">
-              <option>Opción A</option>
-              <option>Opción B</option>
-              <option>Opción C</option>
+              <option>Opcin A</option>
+              <option>Opcin B</option>
+              <option>Opcin C</option>
             </select>
-            <p className="hint error">Selecciona una opción válida</p>
+            <p className="hint error">Selecciona una opcin vlida</p>
           </div>
         </div>
       </section>
@@ -153,41 +153,41 @@ export default function Page() {
           <div className="item">
             <div className="label">Normal</div>
             <article className="card">
-              <h3 className="card-title">Título card</h3>
+              <h3 className="card-title">Ttulo card</h3>
               <p className="card-text">
                 Contenido breve. Esta es una tarjeta en estado normal.
               </p>
-              <button className="btn secondary">Acción</button>
+              <button className="btn secondary">Accin</button>
             </article>
           </div>
 
           <div className="item">
             <div className="label">Hover</div>
             <article className="card is-hover" aria-label="Card hover">
-              <h3 className="card-title">Título card</h3>
+              <h3 className="card-title">Ttulo card</h3>
               <p className="card-text">
                 Al pasar el cursor, resalta el borde y la sombra.
               </p>
-              <button className="btn secondary">Acción</button>
+              <button className="btn secondary">Accin</button>
             </article>
           </div>
 
           <div className="item">
             <div className="label">Disabled</div>
-            <article className="card disabled" aria-disabled="true">
-              <h3 className="card-title">Título card</h3>
-              <p className="card-text">Estado inactivo con interacción bloqueada.</p>
+            <article className="card disabled">
+              <h3 className="card-title">Ttulo card</h3>
+              <p className="card-text">Estado inactivo con interaccin bloqueada.</p>
               <button className="btn secondary" disabled>
-                Acción
+                Accin
               </button>
             </article>
           </div>
 
           <div className="item">
             <div className="label">Error</div>
-            <article className="card error" aria-invalid="true">
-              <h3 className="card-title">Título card</h3>
-              <p className="card-text">Ocurrió un error en esta tarjeta.</p>
+            <article className="card error">
+              <h3 className="card-title">Ttulo card</h3>
+              <p className="card-text">Ocurri un error en esta tarjeta.</p>
               <button className="btn error">Reintentar</button>
             </article>
           </div>
@@ -408,3 +408,8 @@ export default function Page() {
     </main>
   );
 }
+
+
+
+
+
