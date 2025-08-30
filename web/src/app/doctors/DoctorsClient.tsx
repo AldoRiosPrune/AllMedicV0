@@ -1,88 +1,38 @@
-"use client";
+﻿"use client";
 
-export const revalidate = 0; // <- quítalo si lo tenías. NO exports de cache aquí.
-
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Protected from "@/components/Protected";
-import { getSupabaseBrowserClient } from "@/lib/supabaseClient";
 import Link from "next/link";
+import { useDoctors, type DoctorRow } from "@/features/doctors/useDoctors";
 
-type Profile = { full_name: string | null };
-type DoctorRow = {
-  id: string;
-  specialty: string;
-  years_experience: number | null;
-  rating_avg: number | null;
-  rating_count: number | null;
-  profiles?: Profile | null;
-};
-
-type Doctor = {
-  id: string;
-  full_name: string | null;
-  specialty: string;
-  years_experience: number | null;
-  rating_avg: number;
-  rating_count: number;
-};
+type Sort = "rating_desc" | "rating_asc";
 
 export default function DoctorsClient() {
-  const supabase = getSupabaseBrowserClient();
-  const [items, setItems] = useState<Doctor[]>([]);
-  const [loading, setLoading] = useState(true);
   const [specialty, setSpecialty] = useState<string>("");
-  const [order, setOrder] = useState<"rating" | "experience">("rating");
+  const [sort, setSort] = useState<Sort>("rating_desc");
 
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
-      let query = supabase
-        .from("doctors")
-        .select(
-          "id, specialty, years_experience, rating_avg, rating_count, profiles:profiles!inner(full_name)"
-        )
-        .limit(50);
+  const { data, isLoading, error } = useDoctors(specialty || null);
 
-      if (specialty) query = query.ilike("specialty", `%${specialty}%`);
-
-      const { data, error } = await query;
-      if (error) {
-        console.error(error);
-        setItems([]);
-      } else {
-        const rows = (data ?? []) as unknown as DoctorRow[];
-        const mapped: Doctor[] = rows.map((d) => ({
-          id: d.id,
-          full_name: d.profiles?.full_name ?? null,
-          specialty: d.specialty,
-          years_experience: d.years_experience,
-          rating_avg: Number(d.rating_avg ?? 0),
-          rating_count: Number(d.rating_count ?? 0),
-        }));
-        setItems(mapped);
-      }
-      setLoading(false);
-    })();
-  }, [supabase, specialty]);
-
-  const sorted = useMemo(() => {
-    const arr = [...items];
-    if (order === "rating") {
-      arr.sort((a, b) => (b.rating_avg || 0) - (a.rating_avg || 0));
-    } else {
-      arr.sort((a, b) => (b.years_experience || 0) - (a.years_experience || 0));
-    }
+  const items = useMemo(() => {
+    const arr = ((data ?? []) as DoctorRow[]).slice();
+    const getRating = (d: DoctorRow & { rating_avg?: number | null }) =>
+      Number((d as any).rating_avg ?? 0);
+    arr.sort((a, b) =>
+      sort === "rating_desc"
+        ? getRating(b) - getRating(a)
+        : getRating(a) - getRating(b)
+    );
     return arr;
-  }, [items, order]);
+  }, [data, sort]);
 
   return (
     <Protected>
-      <div className="flex items-end gap-3 mb-4">
+      <div className="flex flex-wrap items-end gap-3 mb-4">
         <div>
           <label className="block text-sm">Especialidad</label>
           <input
             className="border rounded px-2 py-1"
-            placeholder="Cardiología, Odontología…"
+            placeholder="Cardiología, Odontología, ..."
             value={specialty}
             onChange={(e) => setSpecialty(e.target.value)}
           />
@@ -91,43 +41,41 @@ export default function DoctorsClient() {
           <label className="block text-sm">Ordenar por</label>
           <select
             className="border rounded px-2 py-1"
-            value={order}
-            onChange={(e) =>
-              setOrder(e.target.value as "rating" | "experience")
-            }
+            value={sort}
+            onChange={(e) => setSort(e.target.value as Sort)}
           >
-            <option value="rating">Mejor calificados</option>
-            <option value="experience">Más experiencia</option>
+            <option value="rating_desc">Mejor calificados</option>
+            <option value="rating_asc">Peor calificados</option>
           </select>
         </div>
       </div>
 
-      {loading ? (
-        <p>Cargando doctores…</p>
-      ) : sorted.length === 0 ? (
+      {isLoading && <p>Cargando doctores…</p>}
+      {error && !isLoading && (
+        <p className="text-red-600">Error al cargar doctores.</p>
+      )}
+      {!isLoading && !error && items.length === 0 && (
         <p>No hay doctores que coincidan.</p>
-      ) : (
+      )}
+      {!isLoading && !error && items.length > 0 && (
         <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {sorted.map((d) => (
-            <li key={d.id} className="border rounded-lg p-4">
-              <div className="font-semibold">
-                {d.full_name ?? "Médico(a) sin nombre"}
-              </div>
-              <div className="text-sm text-gray-600">{d.specialty}</div>
-              <div className="text-sm mt-1">
-                ⭐ {d.rating_avg.toFixed(1)} ({d.rating_count})
-              </div>
-              <div className="text-sm">
-                Experiencia: {d.years_experience ?? 0} años
-              </div>
-              <Link
-                href={`/doctors/${d.id}`}
-                className="inline-block mt-3 text-blue-600 underline"
-              >
-                Ver perfil
-              </Link>
-            </li>
-          ))}
+          {items.map((d) => {
+            const rating = Number((d as any).rating_avg ?? 0);
+            return (
+              <li key={d.id} className="border rounded-lg p-4">
+                <div className="font-semibold">
+                  {d.full_name ?? "Médico(a) sin nombre"}
+                </div>
+                <div className="text-sm text-gray-600">{d.specialty ?? "Sin especialidad"}</div>
+                <div className="text-sm mt-1">⭐ {rating.toFixed(1)}</div>
+                <div className="mt-3">
+                  <Link className="inline-block rounded border px-3 py-1" href={`/doctors/${d.id}`}>
+                    Ver perfil
+                  </Link>
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
     </Protected>
