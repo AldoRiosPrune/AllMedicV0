@@ -7,6 +7,16 @@ import { useEffect, useMemo, useState } from "react";
 import Protected from "@/components/Protected";
 import { getSupabaseBrowserClient } from "@/lib/supabaseClient";
 
+type Profile = { full_name: string | null };
+type DoctorRow = {
+  id: string;
+  specialty: string;
+  years_experience: number | null;
+  rating_avg: number | null;
+  rating_count: number | null;
+  profiles?: Profile | null; // join opcional
+};
+
 type Doctor = {
   id: string;
   full_name: string | null;
@@ -26,19 +36,26 @@ export default function DoctorsPage() {
   useEffect(() => {
     (async () => {
       setLoading(true);
+
+      // Tipamos la respuesta como DoctorRow[]
       let q = supabase
         .from("doctors")
-        .select("id, specialty, years_experience, rating_avg, rating_count, profiles!inner(full_name)")
-        .limit(50);
+        .select(
+          "id, specialty, years_experience, rating_avg, rating_count, profiles:profiles!inner(full_name)"
+        )
+        .limit(50) as unknown as Promise<{ data: DoctorRow[] | null; error: any }>; // el cast solo es del tipo de promesa
 
-      if (specialty) q = q.ilike("specialty", `%${specialty}%`);
+      
+      if (specialty) q = (q as any).ilike("specialty", `%${specialty}%`);
 
+      // Ejecuta la consulta
+      // @ts-ignore – por el cast de arriba
       const { data, error } = await q;
-      if (error) {
+      if (error || !data) {
         console.error(error);
         setItems([]);
       } else {
-        const mapped = (data ?? []).map((d: any) => ({
+        const mapped: Doctor[] = data.map((d) => ({
           id: d.id,
           full_name: d.profiles?.full_name ?? null,
           specialty: d.specialty,
@@ -79,7 +96,7 @@ export default function DoctorsPage() {
           <select
             className="border rounded px-2 py-1"
             value={order}
-            onChange={(e) => setOrder(e.target.value as any)}
+            onChange={(e) => setOrder(e.target.value as "rating" | "experience")}
           >
             <option value="rating">Mejor calificados</option>
             <option value="experience">Más experiencia</option>
@@ -98,7 +115,7 @@ export default function DoctorsPage() {
               <div className="font-semibold">{d.full_name ?? "Médico(a) sin nombre"}</div>
               <div className="text-sm text-gray-600">{d.specialty}</div>
               <div className="text-sm mt-1">
-                ⭐ {d.rating_avg?.toFixed(1) ?? "0.0"} ({d.rating_count ?? 0})
+                ⭐ {d.rating_avg.toFixed(1)} ({d.rating_count})
               </div>
               <div className="text-sm">Experiencia: {d.years_experience ?? 0} años</div>
               <a className="inline-block mt-3 text-blue-600 underline" href={`/doctors/${d.id}`}>

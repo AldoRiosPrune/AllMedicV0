@@ -7,20 +7,31 @@ import { useEffect, useState } from "react";
 import Protected from "@/components/Protected";
 import { getSupabaseBrowserClient } from "@/lib/supabaseClient";
 import { useParams } from "next/navigation";
+import Link from "next/link";
+
+type Profile = { full_name: string | null };
+type DoctorRow = {
+  id: string;
+  specialty: string;
+  years_experience: number | null;
+  rating_avg: number | null;
+  rating_count: number | null;
+  profiles?: Profile | null;
+};
 
 export default function DoctorDetail() {
   const supabase = getSupabaseBrowserClient();
   const { id } = useParams<{ id: string }>();
-  const [d, setD] = useState<any>(null);
+  const [d, setD] = useState<DoctorRow | null>(null); // 👈 sin any
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
       const { data, error } = await supabase
         .from("doctors")
-        .select("*, profiles(full_name)")
+        .select("id, specialty, years_experience, rating_avg, rating_count, profiles(full_name)")
         .eq("id", id)
-        .single();
+        .single<DoctorRow>();
       if (!error) setD(data);
       setLoading(false);
     })();
@@ -35,9 +46,9 @@ export default function DoctorDetail() {
       <p className="text-gray-600">{d.specialty}</p>
       <p className="mt-1">⭐ {Number(d.rating_avg ?? 0).toFixed(1)} ({d.rating_count ?? 0})</p>
       <div className="mt-4">
-        <a className="inline-block rounded border px-4 py-2" href={`/appointments/new?doctor=${d.id}`}>
+        <Link className="inline-block rounded border px-4 py-2" href={`/appointments/new?doctor=${d.id}`}>
           Agendar cita
-        </a>
+        </Link>
       </div>
     </Protected>
   );
