@@ -22,7 +22,7 @@ type DoctorRow = {
 export default function DoctorDetail() {
   const supabase = getSupabaseBrowserClient();
   const { id } = useParams<{ id: string }>();
-  const [d, setD] = useState<DoctorRow | null>(null); // 👈 sin any
+  const [d, setD] = useState<DoctorRow | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,8 +31,11 @@ export default function DoctorDetail() {
         .from("doctors")
         .select("id, specialty, years_experience, rating_avg, rating_count, profiles(full_name)")
         .eq("id", id)
-        .single<DoctorRow>();
-      if (!error) setD(data);
+        .single(); // 👈 sin genéricos
+
+      if (!error && data) {
+        setD(data as DoctorRow); // 👈 casteo seguro al estado tipado
+      }
       setLoading(false);
     })();
   }, [id, supabase]);
