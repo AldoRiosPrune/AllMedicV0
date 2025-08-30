@@ -13,16 +13,16 @@ export function serverClient() {
         get(name: string) {
           return cookieStore.get(name)?.value
         },
-        set(name: string, value: string, options: any) {
+        set(name: string, value: string, options: Record<string, unknown>) {
           try {
-            // @ts-ignore - set allows object in App Router
+            // @ts-expect-error - set allows object in App Router
             cookieStore.set({ name, value, ...options })
           } catch {}
         },
-        remove(name: string, options: any) {
+        remove(name: string, options: Record<string, unknown>) {
           try {
             // Expire cookie
-            // @ts-ignore
+            // @ts-expect-error - set allows object in App Router
             cookieStore.set({ name, value: '', ...options, expires: new Date(0) })
           } catch {}
         },

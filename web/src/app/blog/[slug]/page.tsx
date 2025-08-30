@@ -1,9 +1,10 @@
-export const revalidate = 60
+﻿export const revalidate = 60
 
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { serverClient } from '@/lib/query'
 import Blocks from '@/components/Blocks'
+import type { BlogBlock } from '@/types/domain'
 
 async function fetchPost(slug: string) {
   const supabase = serverClient()
@@ -16,7 +17,7 @@ async function fetchPost(slug: string) {
   return data as {
     slug: string
     title: string
-    content_json: any
+    content_json: BlogBlock[]
     tags: string[] | null
     created_at: string | null
   } | null

@@ -7,11 +7,15 @@ export type CodeBlockProps = {
   language?: string;
 };
 
+// Minimal typing surface to avoid a hard dependency on highlight.js types
+interface HLJSLike {
+  highlight: (code: string, options: { language: string }) => { value: string };
+}
+
 export default function CodeBlock({ code, language }: CodeBlockProps) {
   const [highlighted, setHighlighted] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  // Try to highlight on the client if highlight.js is available.
   useEffect(() => {
     let alive = true;
     async function run() {
@@ -20,13 +24,14 @@ export default function CodeBlock({ code, language }: CodeBlockProps) {
         return;
       }
       try {
-        const mod: any = await import("highlight.js").catch(() => null);
-        if (!mod) {
-          setHighlighted(null);
+        const imported = await import("highlight.js");
+        const maybeDefault = (imported as unknown as { default?: HLJSLike }).default;
+        const hl: HLJSLike | null = maybeDefault ?? ((imported as unknown) as HLJSLike);
+        if (!hl) {
+          if (alive) setHighlighted(null);
           return;
         }
-        const hl = (mod as any).default ?? mod;
-        const value: string = hl.highlight(code, { language }).value;
+        const { value } = hl.highlight(code, { language });
         if (alive) setHighlighted(value);
       } catch {
         if (alive) setHighlighted(null);
