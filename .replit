@@ -14,3 +14,7 @@ mode = "parallel"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd web && npm run dev"
+
+[[ports]]
+localPort = 3000
+externalPort = 80
