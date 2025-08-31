@@ -1,5 +1,4 @@
-
-'use client';
+"use client";
 
 import { useState } from 'react';
 import { Search, Heart, Shield, Clock, Star, MapPin, Calendar, Phone, ChevronRight } from 'lucide-react';
@@ -19,7 +18,7 @@ export default function HomePage() {
     if (searchQuery) params.append('search', searchQuery);
     if (selectedSpecialty) params.append('specialty', selectedSpecialty);
     if (selectedLocation) params.append('location', selectedLocation);
-    
+
     router.push(`/doctors?${params.toString()}`);
   };
 
@@ -38,7 +37,7 @@ export default function HomePage() {
           Encuentra el <span className="text-blue-600">doctor perfecto</span> para ti
         </h1>
         <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-          Conectamos a pacientes con los mejores profesionales de la salud. 
+          Conectamos a pacientes con los mejores profesionales de la salud.
           Agenda tu cita de manera fácil y segura.
         </p>
 
@@ -58,7 +57,7 @@ export default function HomePage() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            
+
             <div>
               <label htmlFor="specialty" className="block text-sm font-medium text-gray-700 mb-1">
                 Especialidad
@@ -75,7 +74,7 @@ export default function HomePage() {
                 ))}
               </select>
             </div>
-            
+
             <div>
               <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
                 Ubicación
@@ -92,7 +91,7 @@ export default function HomePage() {
                 ))}
               </select>
             </div>
-            
+
             <div className="flex items-end">
               <button
                 type="submit"
@@ -117,7 +116,7 @@ export default function HomePage() {
             Todos nuestros profesionales están certificados y verificados para garantizar la mejor atención.
           </p>
         </div>
-        
+
         <div className="text-center p-6">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Shield className="w-8 h-8 text-green-600" />
@@ -127,7 +126,7 @@ export default function HomePage() {
             Tu información está protegida con los más altos estándares de seguridad y privacidad.
           </p>
         </div>
-        
+
         <div className="text-center p-6">
           <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Clock className="w-8 h-8 text-purple-600" />
@@ -148,7 +147,7 @@ export default function HomePage() {
             <ChevronRight className="w-4 h-4" />
           </Link>
         </div>
-        
+
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {mockSpecialties.slice(0, 10).map((specialty) => (
             <button
@@ -171,7 +170,7 @@ export default function HomePage() {
             <ChevronRight className="w-4 h-4" />
           </Link>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {featuredDoctors.map((doctor) => (
             <div key={doctor.id} className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
@@ -184,7 +183,7 @@ export default function HomePage() {
                 <div className="flex-1">
                   <h3 className="font-semibold text-lg">{doctor.name}</h3>
                   <p className="text-blue-600 text-sm">{doctor.specialty}</p>
-                  
+
                   <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600">
                     <div className="flex items-center space-x-1">
                       <Star className="w-4 h-4 text-yellow-500 fill-current" />
@@ -195,7 +194,7 @@ export default function HomePage() {
                       <span>{doctor.location}</span>
                     </div>
                   </div>
-                  
+
                   <div className="flex space-x-2 mt-4">
                     <Link
                       href={`/doctors/${doctor.id}`}

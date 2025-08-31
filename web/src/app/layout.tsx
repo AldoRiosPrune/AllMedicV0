@@ -1,12 +1,11 @@
 // web/src/app/layout.tsx
 "use client"
 
-import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { useState } from "react"
 import "./globals.css"
-import Link from "next/link"; // 👈 importa Link
+import Link from "next/link"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,11 +16,6 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 })
-
-export const metadata: Metadata = {
-  title: "HealthFind - Encuentra tu doctor ideal",
-  description: "Plataforma para encontrar y agendar citas con los mejores doctores",
-}
 
 export default function RootLayout({
   children,
