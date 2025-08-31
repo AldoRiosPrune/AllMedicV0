@@ -1,7 +1,6 @@
-﻿"use client";
+"use client";
 
 import { useMemo, useState } from "react";
-import Protected from "@/components/Protected";
 import Link from "next/link";
 import { useDoctors, type DoctorRow } from "@/features/doctors/useDoctors";
 
@@ -26,13 +25,13 @@ export default function DoctorsClient() {
   }, [data, sort]);
 
   return (
-    <Protected>
+    <>
       <div className="flex flex-wrap items-end gap-3 mb-4">
         <div>
           <label className="block text-sm">Especialidad</label>
           <input
             className="border rounded px-2 py-1"
-            placeholder="Cardiología, Odontología, ..."
+            placeholder="Cardiolog, Odontolog, ..."
             value={specialty}
             onChange={(e) => setSpecialty(e.target.value)}
           />
@@ -50,7 +49,7 @@ export default function DoctorsClient() {
         </div>
       </div>
 
-      {isLoading && <p>Cargando doctores…</p>}
+      {isLoading && <p>Cargando doctores.</p>}
       {error && !isLoading && (
         <p className="text-red-600">Error al cargar doctores.</p>
       )}
@@ -64,10 +63,10 @@ export default function DoctorsClient() {
             return (
               <li key={d.id} className="border rounded-lg p-4">
                 <div className="font-semibold">
-                  {d.full_name ?? "Médico(a) sin nombre"}
+                  {d.full_name ?? "Mdico(a) sin nombre"}
                 </div>
                 <div className="text-sm text-gray-600">{d.specialty ?? "Sin especialidad"}</div>
-                <div className="text-sm mt-1">⭐ {rating.toFixed(1)}</div>
+                <div className="text-sm mt-1">? {rating.toFixed(1)}</div>
                 <div className="mt-3">
                   <Link className="inline-block rounded border px-3 py-1" href={`/doctors/${d.id}`}>
                     Ver perfil
@@ -78,8 +77,6 @@ export default function DoctorsClient() {
           })}
         </ul>
       )}
-    </Protected>
+    </>
   );
 }
-
-
